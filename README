@@ -1,0 +1,271 @@
+ESCALIERLAB 1.0 — CHAQUE MARCHE A SA MESURE
+=========================================
+
+Application pédagogique de dimensionnement géométrique d'une volée droite.
+Public : étudiants en génie civil ; calculs vérifiables, schémas et probabilités.
+Identité bordeaux, ivoire et cuivre. Interface française, sans connexion.
+
+Le dossier livré contient uniquement :
+  app.py              fonctions, HTML/CSS, schémas, calculs et exports
+  requirement.text    bibliothèques
+  README              guide de démarrage, méthodes et tests
+Les tests, captures et archives sont hors de ce dossier. Aucun secret.
+
+1. INSTALLATION WINDOWS
+-----------------------
+Python 3.12 à 3.14 conseillé. Ouvrir ce dossier dans VS Code et le terminal :
+
+  python -m pip install -r requirement.text
+  python -m streamlit run app.py
+
+Pour retrouver aussi les couleurs natives utilisées à la livraison :
+
+  python -m streamlit run app.py --theme.base light --theme.primaryColor "#702D46" --theme.backgroundColor "#FAF5ED" --theme.secondaryBackgroundColor "#F0E4D9" --theme.textColor "#302733" --theme.sidebar.backgroundColor "#3E1D2B" --theme.sidebar.secondaryBackgroundColor "#643046" --theme.sidebar.textColor "#FAF1E8"
+
+Streamlit : interface, formulaires, navigation et session.
+NumPy : géométrie vectorisée et Monte-Carlo reproductible.
+pandas : tableaux, statistiques et fichiers CSV/Excel.
+Plotly : profils, plan, volume 3D et graphiques probabilistes interactifs.
+openpyxl : Excel, import et export.
+ReportLab : PDF paginé, schéma vectoriel et police embarquée.
+Les autres imports sont dans Python. Pas d'API, de clé, de service payant requis.
+Les intervalles de versions ne verrouillent pas toutes les dépendances transitives.
+
+2. DÉMARRER ET CONSERVER SON TRAVAIL
+-----------------------------------
+Le démarrage ouvre un exemple ENTIÈREMENT FICTIF pour voir immédiatement un escalier.
+« Revenir à mon étude » ouvre l'espace personnel distinct. Ses nombres initiaux
+sont des propositions non documentées : les contrôles restent À documenter.
+Saisir dans Dimensionner une source de plan, de relevé ou une hypothèse explicite.
+L'exemple et l'étude personnelle ne sont pas fusionnés automatiquement.
+
+Les projets restent dans la session Streamlit. Une fermeture/reconnexion peut
+les perdre. Télécharger le JSON dans Rapports et tests avant de quitter.
+Le JSON conserve le projet, les critères, hypothèses et relevés, pas les tirages.
+Pour reproduire une simulation, conserver aussi son JSON d'hypothèses avec graine.
+Aucune base persistante n'est créée dans le dossier livré.
+
+Rubriques :
+  Tableau de bord : géométrie, profil et lecture des critères.
+  Dimensionner : dimensions, critères et relevés de hauteurs observées.
+  Comparer : plusieurs nombres entiers de hauteurs pour les mêmes H, R et W.
+  Schémas : profil, plan et volume 3D géométrique.
+  Incertitudes : hypothèses, simulation, statistiques et exports de tous les tirages.
+  Rapports et tests : PDF, Excel, sauvegarde/restauration et exemples expliqués.
+
+Les formulaires s'appliquent uniquement après enregistrement. Modifier H, R ou W
+réinitialise les lois d'incertitude sur Fixe pour éviter des bornes inadaptées.
+Modifier n conserve les hypothèses H/R/W : seules les divisions par n changent.
+Toute modification enregistrée invalide l'ancienne simulation, y compris un relevé.
+
+3. MODÈLE GÉOMÉTRIQUE ET UNITÉS
+-------------------------------
+Une seule volée droite, à hauteurs et girons uniformes.
+H : hauteur entre sols FINIS, m ; R : reculement de la volée hors paliers, m ;
+W : largeur utile, m ; n : nombre entier de hauteurs.
+Le plancher supérieur sert d'arrivée : il y a n hauteurs et n-1 girons.
+  h = H/n
+  g = R/(n-1)
+  B = 2h + g
+  pente de foulée = atan(h/g), convertie en degrés
+  emprise = R W, hors paliers et trémie
+Les h et g sont convertis en cm dans les indicateurs et tableaux.
+
+Attention : atan(h/g) suit la ligne entre les nez de marche. Ce n'est pas
+atan(H/R), l'angle de la diagonale globale de l'enveloppe. Pour le profil,
+le premier nez se trouve à (0,h) et le dernier au plancher d'arrivée (R,H).
+Les axes du profil et du plan gardent un rapport métrique égal ; le volume 3D
+respecte les rapports géométriques. Les schémas ne représentent pas une paillasse.
+Le volume n'a pas de matériau ou d'épaisseur structurelle attribués.
+
+Limites d'entrée de la première version : H 0,30–12 m, R 0,30–20 m,
+W 0,30–6 m et n 2–60. Ce sont des limites de l'outil, pas des prescriptions.
+Une géométrie très raide reste calculable mais peut échouer aux critères.
+Paliers, marches tournantes, trémie, échappée, garde-corps, charges, résistance,
+épaisseur de paillasse et armatures ne sont pas dimensionnés.
+
+4. CRITÈRES ET COMPARAISON
+--------------------------
+Cinq contrôles selon des seuils modifiables : hauteur, giron, 2h+g, pente et largeur.
+Valeurs initiales, choisies POUR L'EXERCICE :
+  14 ≤ h ≤ 18 cm ; 28 ≤ g ≤ 32 cm ; 60 ≤ 2h+g ≤ 64 cm ;
+  pente de foulée ≤ 40 degrés ; largeur utile ≥ 0,80 m.
+Ces valeurs ne constituent pas un ensemble réglementaire local. Les documenter
+dans le champ de référence des critères et les adapter au bâtiment étudié.
+Une référence française sur Blondel est fournie comme support de cours,
+sans affirmation d'applicabilité au Cameroun ou à tout type de bâtiment.
+
+Tolérance numérique pour les comparaisons : 1e-7 cm ou degré ; convertie en
+mètres pour la largeur. Elle évite qu'un arrondi informatique fasse échouer
+une valeur exactement à une borne ; ce n'est pas une tolérance d'exécution.
+Sans source des dimensions, les contrôles restent À documenter.
+
+Comparer énumère les n entiers demandés pour H, R et W inchangés. La zone verte
+du graphique ne représente que les bornes h/g ; un point bordeaux satisfait aussi
+Blondel, pente et largeur. Aucun ajustement de n caché.
+Le choix peut être adopté explicitement, même hors critères pour étudier un cas.
+Les configurations du PDF dans les critères sont classées par proximité de 2h+g
+au milieu de ses deux bornes. Ce classement n'est pas une optimisation structurelle.
+
+5. INCERTITUDES ET PROBABILITÉS
+-------------------------------
+Pour H, R et W :
+  Fixe : référence seule ; amplitude ignorée.
+  Uniforme : borne basse=référence-amplitude, borne haute=référence+amplitude.
+  Triangulaire symétrique : mêmes bornes, mode à la référence.
+L'amplitude se saisit EN CENTIMÈTRES même si les références sont en mètres.
+Exemple : R=4,76 m et amplitude ±4 cm donne [4,72 ; 4,80] m.
+La borne basse doit rester strictement positive ; la haute respecte les limites.
+Les amplitudes sont des hypothèses ou tolérances documentées, ni écarts-types
+ni intervalles de confiance. Le modèle ne déduit pas de loi depuis quelques relevés.
+
+H, R et W sont supposés indépendants ; les dépendances entre h, g, B et pente
+proviennent de leurs formules. Le nombre de hauteurs n est FIXÉ pendant toute la
+simulation. On ne redimensionne pas le projet à chaque tirage.
+Cette simulation représente des géométries possibles sous incertitude, pas une
+variation physique de l'escalier dans le temps.
+
+1000, 10000, 50000 ou 100000 tirages. Même sauvegarde, même graine : mêmes tirages.
+Le résultat global est la fréquence de respect SIMULTANÉ des cinq critères.
+Les fréquences d'écart par critère ne s'additionnent pas, car elles se recouvrent.
+L'intervalle Wilson à 95 % mesure la précision numérique de cette fréquence,
+pas la validité des hypothèses ou une conformité réelle.
+P05–P95 contient environ 90 % des valeurs sous le modèle ; ce n'est pas un
+intervalle de confiance de la moyenne. Les histogrammes servent à lire la distribution.
+La probabilité affichée n'est pas un risque d'accident ou de rupture structurelle.
+
+6. RELEVÉS OBSERVÉS ET IMPORTS
+------------------------------
+Saisir des hauteurs de marche en cm, une par ligne ou séparées par ;.
+Virgule décimale acceptée. Source obligatoire pour une série non vide.
+60 valeurs au plus. Écart-type échantillonnal : diviseur n_mesures-1.
+Avec un seul relevé, l'écart-type n'est pas défini.
+L'étendue est max-min ; elle se compare à un critère d'exercice explicite.
+La fermeture somme les relevés et soustrait H seulement si leur nombre correspond
+au nombre de hauteurs attendu. Série incomplète : fermeture non évaluée.
+Les relevés ne modifient ni H/n ni les lois d'incertitude automatiquement.
+
+CSV UTF-8 séparé par ;, colonnes numero;hauteur_cm. Numéros dans l'ordre 1 à n,
+sans doublon. Excel .xlsx : onglet Releves, mêmes colonnes. Fichier ≤1 Mo.
+Télécharger le modèle fictif depuis Dimensionner pour voir le format.
+L'import remplace la série après aperçu, source et confirmation ; une erreur
+refuse l'ensemble sans modifier les données en place.
+
+7. EXPORTS ET RESTAURATION
+---------------------------
+PDF : géométrie, profil vectoriel, contrôles, configurations, hypothèses,
+relevés résumés, simulation actuelle et méthodes/limites.
+Excel : sept feuilles Projet, Diagnostic, Comparaison, Releves, Hypotheses,
+Source_releves, Simulation. Comparaison énumère toujours n=2 à 60 dans cet export.
+La feuille Simulation contient une synthèse, pas tous les tirages.
+CSV comparatif : plage de n choisie dans Comparer.
+CSV simulation : H/R/W, h/g/B, pente, emprise, cinq indicateurs et leur intersection.
+JSON d'hypothèses : projet, graine, nombre de tirages et probabilité calculée.
+JSON de sauvegarde : projet seul, limité à 100 ko ; ce n'est pas le JSON de résultats.
+Restaurer remplace l'espace correspondant après confirmation : fictif ou personnel.
+L'autre espace est conservé. Sauvegarder avant de remplacer une étude.
+Excel force les cellules textuelles au format texte ; CSV préfixe d'une apostrophe
+les textes susceptibles d'être interprétés comme formule. Le JSON préserve les textes.
+
+8. TESTS MANUELS AVEC RÉSULTATS ATTENDUS
+---------------------------------------
+Référence fictive : H=3 m ; R=4,76 m ; W=1 m ; n=18.
+  17 girons ; h=16,6666667 cm ; g=28 cm ; B=61,3333333 cm ;
+  pente=atan((3/18)/(4,76/17))≈30,7627 degrés ; emprise=4,76 m².
+  Les cinq critères initiaux sont satisfaits.
+Comparer n=10 à 30 : seule n=18 satisfait les cinq critères.
+  n=17 : h≈17,6471 ; g=29,75 ; B≈65,0441 cm, hors borne supérieure 64.
+  n=19 : h≈15,7895 ; g≈26,4444 cm, sous le minimum 28.
+
+Simulation fictive initiale : H/W fixes ; R uniforme ±4 cm ; n=18.
+  g ≥28 cm équivaut à R≥4,76 m : probabilité théorique 50 %.
+  Les quatre autres critères restent satisfaits sur [4,72 ;4,80].
+  Giron : P05≈27,788235 ; médiane=28 ; P95≈28,211765 cm.
+  À 10000 tirages : variation d'environ ±0,98 point autour de 50 % dans 95 %
+  des répétitions, pas une garantie pour chaque graine.
+  Tout fixe, n=18 : 100 % dans les critères. Tout fixe, n=17 : 0 %.
+
+Exemple compact : H=2,70 ; R=3,60 ; W=1 ; n=15 ; minimum de giron=24 cm.
+  h=18 cm ; g≈25,714286 cm ; B≈61,714286 cm ; critères satisfaits.
+
+Modèle fictif de relevés : 18×16,67 cm.
+  moyenne=16,67 ; écart-type=0 ; étendue=0 ; somme=300,06 cm ; fermeture=+0,06 cm.
+Série incomplète 16 ;16,5 ;17 ;17,5 : moyenne=16,75 cm ; écart-type
+  échantillonnal≈0,645497 cm ; étendue=1,5 cm ; fermeture non évaluée (4≠18).
+Amplitudes donnant H ou R ou W ≤0, bornes incohérentes, NaN/inf, numéros CSV
+dupliqués et sauvegardes incorrectes : opération refusée sans écrasement partiel.
+
+9. GITHUB ET STREAMLIT COMMUNITY CLOUD
+--------------------------------------
+Conserver requirement.text dans le dossier livré. Community Cloud attend le nom
+standard requirements.txt. Préparer une COPIE DISTINCTE pour publier :
+  app.py
+  requirements.txt   (copie de requirement.text)
+  README
+Dans cette copie :
+  Copy-Item -LiteralPath requirement.text -Destination requirements.txt
+
+Créer le dépôt escalierlab sur votre compte. Sur GitHub : Add file > Upload files,
+charger les trois fichiers de la copie et valider le commit.
+Ou, dans le terminal VS Code ouvert sur cette copie :
+  git init
+  git add app.py requirements.txt README
+  git commit -m "Premiere version EscalierLab"
+  git branch -M main
+  git remote add origin https://github.com/VOTRE_COMPTE/escalierlab.git
+  git push -u origin main
+Si origin existe déjà, lire git remote -v avant de le corriger si nécessaire :
+  git remote set-url origin https://github.com/VOTRE_COMPTE/escalierlab.git
+
+Community Cloud : Create app, dépôt escalierlab, branche main, fichier app.py.
+Paste URL : https://github.com/VOTRE_COMPTE/escalierlab/blob/main/app.py
+Choisir une version Python compatible proposée et contrôler les journaux.
+Partager l'URL publique .streamlit.app ; localhost est local à votre ordinateur.
+Le déploiement public n'est pas effectué automatiquement par cette livraison.
+Mettre à jour dans la copie :
+  git status
+  git add app.py requirements.txt README
+  git commit -m "Amelioration EscalierLab"
+  git push
+Ne pas publier de sauvegardes contenant des données personnelles de projet.
+
+10. RÉFÉRENCES ET VÉRIFICATIONS
+--------------------------------
+Guide pédagogique français consulté pour les proportions, sans adoption de
+règles locales ni application automatique à tous les usages :
+  https://www.ecologie.gouv.fr/sites/default/files/publications/2019%2007%20guide_DHUP_erp-existants.pdf?lang=en
+Documentation d'hébergement :
+  https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies
+
+Vérifications réellement effectuées le 30/10/2026 :
+  - installation avec la commande indiquée et lancement local sur le port 8544 ;
+  - 24 tests automatisés réussis : géométrie connue, nombre de girons, profil,
+    pente de foulée, configurations, critères inclusifs, Monte-Carlo, lois,
+    dépendances dérivées, relevés complets/incomplets, imports et sauvegardes,
+    PDF/Excel et formulaires Streamlit ;
+  - parcours interactif complet dans Microsoft Edge aux largeurs 1440 et 390 px :
+    changement de H, modification puis restauration d'un critère, relevés manuels,
+    import CSV, adoption de n=17 puis n=18, vues profil/plan/3D, 100000 simulations,
+    téléchargements, restauration exacte et séparation de l'étude personnelle ;
+  - contrôle visuel des six rubriques aux largeurs 768 et 320 px ;
+  - cadrage 3D final contrôlé à 1440, 390 et 320 px : vue au-dessus des girons,
+    proportions conservées et dimensions affichées sous le dessin pour éviter
+    les libellés coupés sur les petits écrans ;
+  - vérification de l'absence de débordement horizontal de page et de texte coupé
+    dans les titres, indicateurs et boutons contrôlés ;
+  - fichiers réellement téléchargés vérifiés sur ordinateur et mobile :
+    100000 scénarios, sept feuilles Excel, 18 relevés, PDF et JSON cohérents ;
+  - PDF final de deux pages rendu en images et inspecté : schéma vectoriel,
+    tableaux, accents, marges et pagination lisibles, sans chevauchement constaté ;
+  - corrections vérifiées : téléchargement sans relance du calcul et stabilité
+    des panneaux après navigation ; les confirmations s'affichent en notification.
+
+Résultat reproductible du test fictif de référence : 100000 tirages, graine 42,
+fréquence de respect simultané des critères =50,257 %, contre 50 % théoriques.
+Ce résultat ne mesure pas la qualité d'une construction réelle.
+
+Restent à réaliser : déploiement sur Community Cloud, essais sur de véritables
+appareils tactiles (formats mobiles vérifiés ici dans un navigateur), confrontation
+aux plans et mesures d'un projet réel et identification des exigences applicables.
+Les autres versions autorisées par les dépendances n'ont pas toutes été testées.
+Aucun dépôt GitHub ni hébergement public n'a été créé lors de cette livraison.
